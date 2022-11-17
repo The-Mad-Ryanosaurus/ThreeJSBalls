@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.js"></script>
+	<script>
+		// Scene Create
+		const scene = new THREE.Scene();
+
+		//Camera Create
+		const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+		const helper = new THREE.CameraHelper(camera);
+		camera.position.z = 25;
+		camera.position.y = 10;
+		scene.add(helper);
+
+		//Sphere Create
+		let geometry = new THREE.SphereGeometry(1, 32, 16);
+		let material = new THREE.MeshLambertMaterial({ color: ("Red"), wireframe: false });
+		let sphere = new THREE.Mesh(geometry, material);
+		sphere.castShadow = true;
+		sphere.position.y = -4;
+		scene.add(sphere);
+
+		//Sphere Wireframe Create
+		var geo = new THREE.WireframeGeometry(geometry);
+		var mat = new THREE.LineBasicMaterial({ color: ("White") });
+		var wireframe = new THREE.LineSegments(geo, mat);
+		sphere.add(wireframe);
+
+		// Sphere2 Create
+		sphere2 = new THREE.Mesh(geometry, material);
+		sphere2.castShadow = true;
+
+		// Sphere2 Wireframe
+		var geo = new THREE.WireframeGeometry(geometry);
+		var mat = new THREE.LineBasicMaterial({ color: ("White") });
+		var wireframe = new THREE.LineSegments(geo, mat);
+		sphere2.add(wireframe);
+
+		scene.add(sphere2);
+
+		// Transparent Box Create
+		bgeometry = new THREE.BoxGeometry(10, 10, 10);
+		let boxmaterial = new THREE.MeshLambertMaterial({ color: ("White"), transparent: true, opacity: 0.5 });
+		let box = new THREE.Mesh(bgeometry, boxmaterial);
+		box.receiveShadow = true;
+		scene.add(box);
+
+		// AmbientLight Create 
+		var light = new THREE.AmbientLight({ color: ("White") });
+		light.intensity = 0.25;
+		scene.add(light);
+
+		// Spotlight Create
+		var spotLight = new THREE.SpotLight({ color: ("White") });
+		spotLight.position.set(10, 10, 0);
+		spotLight.castShadow = true;
+		scene.add(spotLight)
+
+		// Plane Create (the floor)
+		let pgeometry = new THREE.PlaneGeometry(10, 10);
+		let pmaterial = new THREE.MeshLambertMaterial({ color: ("Blue"), wireframe: false });
+		let plane = new THREE.Mesh(pgeometry, pmaterial);
+		plane.rotation.x = -Math.PI / 2;
+		plane.position.y = -5;
+
+		// Plane Wireframe Create
+		var pgeo = new THREE.WireframeGeometry(pgeometry);
+		var pmat = new THREE.LineBasicMaterial({ color: ("White") });
+		var pwireframe = new THREE.LineSegments(pgeo, pmat);
+		pwireframe.rotation.x = -Math.PI / 2;
+		pwireframe.position.y = -5;
+		scene.add(plane, pwireframe);
+
+
+
+		//Renderer creation
+		const renderer = new THREE.WebGLRenderer();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+		// Add renderer to dom
+		document.body.appendChild(renderer.domElement);
+
+		//Hue values
+		let hue = 0;
+		let phue = 0;
+
+		let vx = -6;
+		let vy = -5;
+		let vz = -12;
+		let dir = -1;
+
+
+		function Loop() {
+
+			renderer.render(scene, camera);
+
+			sphere.rotation.x += 0.01;
+			sphere.rotation.y += 0.01;
+
+
+
+			if (sphere.position.x > 3.75 || sphere.position.x < -3.75) {
+				dir *= -1;
+			}
+
+			material.color.setHSL(hue, 1, .5)
+			hue += 0.001
+
+			sphere.position.x += dir * .01;
+
+			sphere2.position.x += vx * .01;
+			sphere2.position.y += vy * .01;
+			sphere2.position.z += vz * .01;
+
+			vy -= 0.12
+
+			let radius = 1;
+
+			// Flip velocity when hitting any of the walls
+			if (sphere2.position.y < -5 + radius || sphere2.position.y > 5 - radius) {
+				vy *= -1;
+			}
+
+			if (sphere2.position.x < -5 + radius || sphere2.position.x > 5 - radius) {
+				vx *= -1;
+			}
+
+			if (sphere2.position.z < -5 + radius || sphere2.position.z > 5 - radius) {
+				vz *= -1;
+			}
+
+			requestAnimationFrame(Loop);
+
+		}
+
+
+		requestAnimationFrame(Loop);
+	</script>
+</body>
+
+</html>
